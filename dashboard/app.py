@@ -62,3 +62,23 @@ st.line_chart(costs)
 st.success(f"Total Energy Cost: ₹{round(total_cost, 2)}")
 st.success(f"Total Electricity Cost: **₹{total_cost:.2f}**")
 
+import pandas as pd
+
+# Build the DataFrame
+schedule_data = []
+for t in range(len(actions)):
+    row = {"Hour": t}
+    for i in range(env.num_appliances):
+        row[f"{appliance_names[i]}_State"] = actions[t][i]
+    row["Cost"] = costs[t]
+    schedule_data.append(row)
+
+df_schedule = pd.DataFrame(schedule_data)
+
+# CSV download button
+st.download_button(
+    label="⬇️ Download Schedule as CSV",
+    data=df_schedule.to_csv(index=False),
+    file_name="appliance_schedule.csv",
+    mime="text/csv"
+)
