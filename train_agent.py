@@ -7,7 +7,7 @@ env = SmartHomeEnv()
 model = PPO("MlpPolicy", env, verbose=1)
 model.learn(total_timesteps=10000)
 
-os.makedirs("models", exist_ok=True
+os.makedirs("models", exist_ok=True)
 model.save("models/ppo_smart_home")
 
 print("Training complete and model saved!")
