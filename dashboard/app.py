@@ -2,6 +2,7 @@ import streamlit as st
 import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
+from datetime import datetime
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -62,23 +63,48 @@ st.line_chart(costs)
 st.success(f"Total Energy Cost: ₹{round(total_cost, 2)}")
 st.success(f"Total Electricity Cost: **₹{total_cost:.2f}**")
 
-import pandas as pd
+# Generate human-readable time labels for each hour
+time_labels = [f"{h:02d}:00" for h in range(len(actions))]
 
-# Build the DataFrame
+# Build schedule data
 schedule_data = []
 for t in range(len(actions)):
-    row = {"Hour": t}
+    row = {"Time": time_labels[t]}
     for i in range(env.num_appliances):
         row[f"{appliance_names[i]}_State"] = actions[t][i]
     row["Cost"] = costs[t]
     schedule_data.append(row)
 
+# Create DataFrame
 df_schedule = pd.DataFrame(schedule_data)
 
-# CSV download button
+# Add total cost row at the end
+total_row = {col: "" for col in df_schedule.columns}
+total_row["Time"] = "Total"
+total_row["Cost"] = round(total_cost, 2)
+df_schedule = pd.concat([df_schedule, pd.DataFrame([total_row])], ignore_index=True)
+
+# Add power usage table (based on config)
+appliance_power = {
+    "Fan": "70 W",
+    "AC": "1500 W",
+    "Fridge": "200 W"
+}
+power_data = {"Appliance": list(appliance_power.keys()), "Power": list(appliance_power.values())}
+df_power = pd.DataFrame(power_data)
+
+# Combine into one CSV string
+combined_csv = df_schedule.to_csv(index=False) + "\n\n" + df_power.to_csv(index=False)
+
+# Generate filename with today's date
+date_str = datetime.today().strftime('%Y-%m-%d')
+file_name = f"schedule_{date_str}.csv"
+
+# Download button
 st.download_button(
     label="⬇️ Download Schedule as CSV",
-    data=df_schedule.to_csv(index=False),
-    file_name="appliance_schedule.csv",
+    data=combined_csv,
+    file_name=file_name,
     mime="text/csv"
 )
+
