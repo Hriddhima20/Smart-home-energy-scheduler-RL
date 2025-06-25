@@ -41,11 +41,11 @@ while True:
 st.subheader("Appliance Schedule Over 24 Hours")
 
 # Label the appliances in order — update these names if your config is different
-appliance_names = ["Fan", "AC", "Fridge"]
+appliance_names = ["Fan", "AC"]
 
-for i in range(env.num_appliances):
+for i in range(len(appliance_names)):
     states = [a[i] for a in actions]
-    st.markdown(f"### 🔌 {appliance_names[i]}")
+    st.markdown(f"### {appliance_names[i]}")
     st.caption("State of the appliance at each hour of the day (0 = OFF, 1 = ON)")
     
     # Create a labeled DataFrame for proper axis labels
@@ -55,7 +55,14 @@ for i in range(env.num_appliances):
     }).set_index("Hour")
 
     st.line_chart(df)
-
+    
+for t in range(len(actions)):
+    row = {"Time": time_labels[t]}
+    for i in range(len(appliance_names)):
+        row[f"{appliance_names[i]}_State"] = actions[t][i]
+    row["Fridge_State"] = 1
+    row["Cost"] = costs[t]
+    schedule_data.append(row)
 
 st.subheader("Energy Cost Over Time")
 st.line_chart(costs)
