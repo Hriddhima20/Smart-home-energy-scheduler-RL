@@ -56,7 +56,10 @@ for i in range(len(appliance_names)):
 
     st.line_chart(df)
     
+schedule_data = []
 for t in range(len(actions)):
+    time_labels = [f"{h:02d}:00" for h in range(len(actions))]
+
     row = {"Time": time_labels[t]}
     for i in range(len(appliance_names)):
         row[f"{appliance_names[i]}_State"] = actions[t][i]
