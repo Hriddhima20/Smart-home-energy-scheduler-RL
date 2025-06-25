@@ -17,7 +17,7 @@ class SmartHomeEnv(gym.Env):
 
     def reset(self):
         self.time = 0
-        self.appliance_states = np.zeros(self.num_appliances)
+        self.appliance_states = np.zeros(self.num_appliances+1)
         self.done = False
         return self._get_state()
 
