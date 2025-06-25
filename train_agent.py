@@ -1,20 +1,25 @@
+"""
+Trains a PPO agent to schedule Fan and AC while the fridge remains ON 24×7.
+"""
+
 from stable_baselines3 import PPO
 from smart_home_env import SmartHomeEnv
 import os
 
-env = SmartHomeEnv()
+def main():
+    env = SmartHomeEnv()          # fridge fixed ON; action_space = MultiBinary(2)
 
-model = PPO("MlpPolicy", env, verbose=1)
-model.learn(total_timesteps=10000)
+    model = PPO( 
+        policy="MlpPolicy", 
+        env=env,
+        verbose=1,                # set to 0 to silence training log
+        tensorboard_log="./logs"   
+    )
 
-return self._get_state(), reward, self.done, {
-    "energy_cost": energy_cost,
-    "time": self.time
-}
+    model.learn(total_timesteps=10_000)
+    os.makedirs("models", exist_ok=True)
+    model.save("models/ppo_smart_home")
+    print("✅ Training complete – model saved to models/ppo_smart_home.zip")
 
-
-# Save the trained model
-os.makedirs("models", exist_ok=True)
-model.save("models/ppo_smart_home")
-
-print("Training complete and model saved!")
+if __name__ == "__main__":
+    main()
