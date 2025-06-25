@@ -1,4 +1,5 @@
 import streamlit as st
+import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
 import sys
@@ -36,10 +37,24 @@ while True:
     if done:
         break
 
-st.subheader("Appliance Schedule (1 = ON, 0 = OFF)")
+st.subheader("Appliance Schedule Over 24 Hours")
+
+# Label the appliances in order — update these names if your config is different
+appliance_names = ["Fan", "AC", "Fridge"]
+
 for i in range(env.num_appliances):
     states = [a[i] for a in actions]
-    st.line_chart(states)
+    st.markdown(f"### 🔌 {appliance_names[i]}")
+    st.caption("State of the appliance at each hour of the day (0 = OFF, 1 = ON)")
+    
+    # Create a labeled DataFrame for proper axis labels
+    df = pd.DataFrame({
+        "Hour": list(range(len(states))),
+        "State": states
+    }).set_index("Hour")
+
+    st.line_chart(df)
+
 
 st.subheader("Energy Cost Over Time")
 st.line_chart(costs)
