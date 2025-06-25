@@ -3,9 +3,15 @@ from smart_home_env import SmartHomeEnv
 import os
 
 env = SmartHomeEnv()
-model = PPO("MlpPolicy", env, verbose=1) # Create PPO agent
 
-model.learn(total_timesteps=10000) # Train agent
+model = PPO("MlpPolicy", env, verbose=1)
+model.learn(total_timesteps=10000)
+
+return self._get_state(), reward, self.done, {
+    "energy_cost": energy_cost,
+    "time": self.time
+}
+
 
 # Save the trained model
 os.makedirs("models", exist_ok=True)
