@@ -194,7 +194,7 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
             )
             appliance_inputs.append((name, power, intervals))
 
-        submitted = st.form_submit_button("📟 Calculate Non-RL Cost")
+        submitted = st.form_submit_button("Calculate Non-RL Cost")
 
     if submitted:
         non_rl_cost = 0
@@ -218,16 +218,21 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
                 cost = power_kW * rate
                 non_rl_cost += cost
 
-        st.success(f"💡 Estimated Cost without RL: ₹{non_rl_cost:.2f}")
+        st.success(f"Estimated Cost without RL: ₹{non_rl_cost:.2f}")
 
         # === RL cost (from model's result schedule) ===
         cost_with_rl = schedule_df["Cost (₹)"].sum()
         savings = non_rl_cost - cost_with_rl
         percent_saved = (savings / non_rl_cost) * 100 if non_rl_cost > 0 else 0
 
-        st.markdown("### ⚖️ Step 2: Compare with RL Model")
+        st.markdown("Step 2: Compare with RL Model")
 
         col1, col2 = st.columns(2)
-        col1.metric("💸 Manual Cost", f"₹{non_rl_cost:.2f}")
-        col2.metric("🤖 RL Model Cost", f"₹{cost_wit_
+        col1.metric("Manual Cost", f"₹{non_rl_cost:.2f}")
+        col2.metric("RL Model Cost", f"₹{cost_with_rl:.2f}", f"Saved ₹{savings:.2f} ({percent_saved:.1f}%)")
+
+        st.markdown(f"""
+        >**Your smart RL scheduler reduced your cost by ₹{savings:.2f} ({percent_saved:.1f}%) per day**  
+        > Try changing the usage pattern above to see how much you can save!
+        """)
 
