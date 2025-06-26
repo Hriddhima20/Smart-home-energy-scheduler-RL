@@ -46,12 +46,6 @@ for i in range(len(appliance_names)):
     states = [a[i] for a in actions]
     st.markdown(f"### {appliance_names[i]}")
     st.caption("State of the appliance at each hour of the day (0 = OFF, 1 = ON)")
-
-# Plot Fridge (always ON)
-st.markdown("### Fridge")
-st.caption("Fridge is always ON (State = 1)")
-df_fridge = pd.DataFrame({"Hour": list(range(24)), "State": [1]*24}).set_index("Hour")
-st.line_chart(df_fridge)
     
     # Create a labeled DataFrame for proper axis labels
     df = pd.DataFrame({
@@ -60,7 +54,13 @@ st.line_chart(df_fridge)
     }).set_index("Hour")
 
     st.line_chart(df)
-    
+
+# Plot Fridge (always ON)
+st.markdown("### Fridge")
+st.caption("Fridge is always ON (State = 1)")
+df_fridge = pd.DataFrame({"Hour": list(range(24)), "State": [1]*24}).set_index("Hour")
+st.line_chart(df_fridge)
+
 schedule_data = []
 for t in range(len(actions)):
     time_labels = [f"{h:02d}:00" for h in range(len(actions))]
