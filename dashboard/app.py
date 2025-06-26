@@ -3,7 +3,6 @@ import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
 from datetime import datetime
-from evaluate_agent import evaluate_agent
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -39,8 +38,38 @@ while True:
     if done:
         break
 
-st.subheader("Appliance Schedule Over 24 Hours")
+def evaluate_agent(env, model):
+    obs = env.reset()
+    timeline = []
+    actions = []
+    costs = []
+    step = 0
 
+    while True:
+        action, _ = model.predict(obs)
+        obs, reward, done, _ = env.step(action)
+
+        timeline.append(step)
+        actions.append(action)
+        costs.append(-reward)
+        step += 1
+
+        if done:
+            break
+
+    schedule = []
+    for t in range(len(actions)):
+        hour = t
+        fan = actions[t][0]
+        ac = actions[t][1]
+        fridge = 1  # Always ON
+        power_kw = (fan * 70 + ac * 1500 + fridge * 300) / 1000
+        cost = costs[t]
+        schedule.append([hour, fan, ac, fridge, power_kw, cost])
+
+    return schedule
+
+st.subheader("Appliance Schedule Over 24 Hours")
 # Label the appliances in order — update these names if your config is different
 appliance_names = ["Fan", "AC"]
 
