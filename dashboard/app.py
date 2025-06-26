@@ -3,6 +3,7 @@ import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
 from datetime import datetime
+from evaluate_agent import evaluate_agent
 import sys
 import os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -98,7 +99,7 @@ df_schedule = pd.concat([df_schedule, pd.DataFrame([total_row])], ignore_index=T
 appliance_power = {
     "Fan": "70 W",
     "AC": "1500 W",
-    "Fridge": "200 W"
+    "Fridge": "300 W"
 }
 power_data = {"Appliance": list(appliance_power.keys()), "Power": list(appliance_power.values())}
 df_power = pd.DataFrame(power_data)
@@ -178,18 +179,20 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
     st.bar_chart(pd.DataFrame.from_dict(monthly_kwh_per_appliance, orient='index', columns=["kWh"]))
 
     
-    with st.expander("📊 RL vs Non-RL Comparison", expanded=True):
-        st.markdown("### 🛠️ Step 1: Estimate Your Manual (Non-RL) Usage")
+with st.expander("RL vs Non-RL Comparison", expanded=True):
+    st.markdown("Step 1: Estimate Your Manual (Non-RL) Usage")
 
     with st.form("manual_usage_form"):
         num_manual_appliances = st.number_input("Number of appliances (excluding fridge):", min_value=1, max_value=5, step=1)
         appliance_inputs = []
+        submitted = st.form_submit_button("Calculate Non-RL Cost")
+        
         for i in range(num_manual_appliances):
-            st.markdown(f"#### Appliance {i+1}")
+            st.markdown(f"Appliance {i+1}")
             name = st.text_input(f"Appliance {i+1} name:", key=f"name_{i}")
             power = st.number_input(f"{name or 'Appliance'} power rating (Watts):", min_value=10, max_value=5000, key=f"power_{i}")
             intervals = st.text_input(
-                f"When do you use {name or 'this appliance'}? (e.g., 4-7, 18-21)", key=f"intervals_{i}"
+                f"How many hours do you use {name or 'this appliance'}? (e.g., 8, 16)", key=f"intervals_{i}"
             )
             appliance_inputs.append((name, power, intervals))
 
@@ -205,7 +208,7 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
                     start, end = map(int, interval.strip().split("-"))
                     hours_on.update(range(start, end))  # end not inclusive
                 except:
-                    st.error(f"⚠️ Invalid format in '{interval}'. Use format like 4-7.")
+                    st.error(f"⚠️ Invalid format in '{interval}'")
                     continue
 
             for h in hours_on:
@@ -219,7 +222,11 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
 
         st.success(f"Estimated Cost without RL: ₹{non_rl_cost:.2f}")
 
-        # === RL cost (from model's result schedule) ===
+        # RL cost (from model's result schedule)
+        schedule = evaluate_agent(env, model)
+        # define the dataframe for RL results
+        schedule_df = pd.DataFrame(schedule, columns=["Hour", "Fan", "AC", "Fridge", "Power (kW)", "Cost (₹)"])
+
         cost_with_rl = schedule_df["Cost (₹)"].sum()
         savings = non_rl_cost - cost_with_rl
         percent_saved = (savings / non_rl_cost) * 100 if non_rl_cost > 0 else 0
