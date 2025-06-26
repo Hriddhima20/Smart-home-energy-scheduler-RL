@@ -177,3 +177,57 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
     monthly_kwh_per_appliance = {k: v * 30 for k, v in per_appliance_kwh.items()}
     st.bar_chart(pd.DataFrame.from_dict(monthly_kwh_per_appliance, orient='index', columns=["kWh"]))
 
+    
+    with st.expander("📊 RL vs Non-RL Comparison", expanded=True):
+    st.markdown("### 🛠️ Step 1: Estimate Your Manual (Non-RL) Usage")
+
+    with st.form("manual_usage_form"):
+        num_manual_appliances = st.number_input("Number of appliances (excluding fridge):", min_value=1, max_value=5, step=1)
+
+        appliance_inputs = []
+        for i in range(num_manual_appliances):
+            st.markdown(f"#### Appliance {i+1}")
+            name = st.text_input(f"Appliance {i+1} name:", key=f"name_{i}")
+            power = st.number_input(f"{name or 'Appliance'} power rating (Watts):", min_value=10, max_value=5000, key=f"power_{i}")
+            intervals = st.text_input(
+                f"When do you use {name or 'this appliance'}? (e.g., 4-7, 18-21)", key=f"intervals_{i}"
+            )
+            appliance_inputs.append((name, power, intervals))
+
+        submitted = st.form_submit_button("📟 Calculate Non-RL Cost")
+
+    if submitted:
+        non_rl_cost = 0
+
+        for name, power, intervals in appliance_inputs:
+            hours_on = set()
+            for interval in intervals.split(","):
+                try:
+                    start, end = map(int, interval.strip().split("-"))
+                    hours_on.update(range(start, end))  # end not inclusive
+                except:
+                    st.error(f"⚠️ Invalid format in '{interval}'. Use format like 4-7.")
+                    continue
+
+            for h in hours_on:
+                if h < 0 or h >= 24:
+                    st.warning(f"Hour {h} is invalid. Must be 0-23.")
+                    continue
+                rate = env._get_power_rates(h)[1]  # Use average controllable appliance rate
+                power_kW = power / 1000
+                cost = power_kW * rate
+                non_rl_cost += cost
+
+        st.success(f"💡 Estimated Cost without RL: ₹{non_rl_cost:.2f}")
+
+        # === RL cost (from model's result schedule) ===
+        cost_with_rl = schedule_df["Cost (₹)"].sum()
+        savings = non_rl_cost - cost_with_rl
+        percent_saved = (savings / non_rl_cost) * 100 if non_rl_cost > 0 else 0
+
+        st.markdown("### ⚖️ Step 2: Compare with RL Model")
+
+        col1, col2 = st.columns(2)
+        col1.metric("💸 Manual Cost", f"₹{non_rl_cost:.2f}")
+        col2.metric("🤖 RL Model Cost", f"₹{cost_wit_
+
