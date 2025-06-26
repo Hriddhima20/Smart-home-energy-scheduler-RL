@@ -27,16 +27,35 @@ step = 0
 
 while True:
     action, _ = model.predict(obs)
-    obs, reward, done, _ = env.step(action)
+    obs, _, done, _ = env.step(action)
+
+    fan_on = action[0]
+    ac_on = action[1]
+    fridge_on = 1  # Always ON
+
+    # Power ratings (Watts → kW)
+    fan_kw = 70 / 1000
+    ac_kw = 1500 / 1000
+    fridge_kw = 300 / 1000
+
+    # Total energy used in kWh
+    energy_kwh = (fan_on * fan_kw) + (ac_on * ac_kw) + (fridge_on * fridge_kw)
+
+    # Get current hour's electricity rate (avg for simplicity)
+    rate = np.mean(env._get_power_rates(step))
+
+    # Cost = energy × rate
+    cost = energy_kwh * rate
 
     timeline.append(step)
     actions.append(action)
-    costs.append(-reward)  # negative reward = cost
-    total_cost += -reward
-    step += 1
+    costs.append(cost)
+    total_cost += cost
 
+    step += 1
     if done:
         break
+
 
 st.subheader("Appliance Schedule Over 24 Hours")
 # Label the appliances in order — update these names if your config is different
