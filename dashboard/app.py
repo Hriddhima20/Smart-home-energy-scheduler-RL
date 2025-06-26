@@ -179,11 +179,10 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
 
     
     with st.expander("📊 RL vs Non-RL Comparison", expanded=True):
-    st.markdown("### 🛠️ Step 1: Estimate Your Manual (Non-RL) Usage")
+        st.markdown("### 🛠️ Step 1: Estimate Your Manual (Non-RL) Usage")
 
     with st.form("manual_usage_form"):
         num_manual_appliances = st.number_input("Number of appliances (excluding fridge):", min_value=1, max_value=5, step=1)
-
         appliance_inputs = []
         for i in range(num_manual_appliances):
             st.markdown(f"#### Appliance {i+1}")
