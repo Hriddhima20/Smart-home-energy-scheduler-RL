@@ -92,8 +92,9 @@ for t in range(len(actions)):
 st.subheader("Energy Cost Over Time")
 st.line_chart(costs)
 
-st.success(f"Total Energy Cost: ₹{round(total_cost, 2)}")
-st.success(f"Total Electricity Cost: **₹{total_cost:.2f}**")
+# Show monthly projection
+monthly_cost = sum(costs) * 30
+st.success(f"Estimated Monthly Electricity Cost (via RL): ₹{monthly_cost:.2f}")
 
 # Generate human-readable time labels for each hour
 time_labels = [f"{h:02d}:00" for h in range(len(actions))]
