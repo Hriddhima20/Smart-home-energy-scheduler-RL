@@ -38,37 +38,6 @@ while True:
     if done:
         break
 
-def evaluate_agent(env, model):
-    obs = env.reset()
-    timeline = []
-    actions = []
-    costs = []
-    step = 0
-
-    while True:
-        action, _ = model.predict(obs)
-        obs, reward, done, _ = env.step(action)
-
-        timeline.append(step)
-        actions.append(action)
-        costs.append(-reward)
-        step += 1
-
-        if done:
-            break
-
-    schedule = []
-    for t in range(len(actions)):
-        hour = t
-        fan = actions[t][0]
-        ac = actions[t][1]
-        fridge = 1  # Always ON
-        power_kw = (fan * 70 + ac * 1500 + fridge * 300) / 1000
-        cost = costs[t]
-        schedule.append([hour, fan, ac, fridge, power_kw, cost])
-
-    return schedule
-
 st.subheader("Appliance Schedule Over 24 Hours")
 # Label the appliances in order — update these names if your config is different
 appliance_names = ["Fan", "AC"]
@@ -206,68 +175,3 @@ with st.expander("📆 View Monthly Bill Estimation", expanded=False):
     st.markdown("Appliance-wise Monthly Consumption")
     monthly_kwh_per_appliance = {k: v * 30 for k, v in per_appliance_kwh.items()}
     st.bar_chart(pd.DataFrame.from_dict(monthly_kwh_per_appliance, orient='index', columns=["kWh"]))
-
-    
-with st.expander("RL vs Non-RL Comparison", expanded=True):
-    st.markdown("Step 1: Estimate Your Manual (Non-RL) Usage")
-
-    with st.form("manual_usage_form"):
-        num_manual_appliances = st.number_input("Number of appliances (excluding fridge):", min_value=1, max_value=5, step=1)
-        appliance_inputs = []
-        submitted = st.form_submit_button("Calculate Non-RL Cost")
-        
-        for i in range(num_manual_appliances):
-            st.markdown(f"Appliance {i+1}")
-            name = st.text_input(f"Appliance {i+1} name:", key=f"name_{i}")
-            power = st.number_input(f"{name or 'Appliance'} power rating (Watts):", min_value=10, max_value=5000, key=f"power_{i}")
-            intervals = st.text_input(
-                f"How many hours do you use {name or 'this appliance'}? (e.g., 8, 16)", key=f"intervals_{i}"
-            )
-            appliance_inputs.append((name, power, intervals))
-
-        submitted = st.form_submit_button("Calculate Non-RL Cost")
-
-    if submitted:
-        non_rl_cost = 0
-
-        for name, power, intervals in appliance_inputs:
-            hours_on = set()
-            for interval in intervals.split(","):
-                try:
-                    start, end = map(int, interval.strip().split("-"))
-                    hours_on.update(range(start, end))  # end not inclusive
-                except:
-                    st.error(f"⚠️ Invalid format in '{interval}'")
-                    continue
-
-            for h in hours_on:
-                if h < 0 or h >= 24:
-                    st.warning(f"Hour {h} is invalid. Must be 0-23.")
-                    continue
-                rate = env._get_power_rates(h)[1]  # Use average controllable appliance rate
-                power_kW = power / 1000
-                cost = power_kW * rate
-                non_rl_cost += cost
-
-        st.success(f"Estimated Cost without RL: ₹{non_rl_cost:.2f}")
-
-        # RL cost (from model's result schedule)
-        schedule = evaluate_agent(env, model)
-        # define the dataframe for RL results
-        schedule_df = pd.DataFrame(schedule, columns=["Hour", "Fan", "AC", "Fridge", "Power (kW)", "Cost (₹)"])
-
-        cost_with_rl = schedule_df["Cost (₹)"].sum()
-        savings = non_rl_cost - cost_with_rl
-        percent_saved = (savings / non_rl_cost) * 100 if non_rl_cost > 0 else 0
-
-        st.markdown("Step 2: Compare with RL Model")
-
-        col1, col2 = st.columns(2)
-        col1.metric("Manual Cost", f"₹{non_rl_cost:.2f}")
-        col2.metric("RL Model Cost", f"₹{cost_with_rl:.2f}", f"Saved ₹{savings:.2f} ({percent_saved:.1f}%)")
-
-        st.markdown(f"""
-        >**Your smart RL scheduler reduced your cost by ₹{savings:.2f} ({percent_saved:.1f}%) per day**  
-        > Try changing the usage pattern above to see how much you can save!
-        """)
-
