@@ -7,6 +7,15 @@
 
 This project uses Reinforcement Learning to minimize electricity costs by intelligently scheduling the operation of home appliances like fans, ACs, and refrigerators.
 
+## Tools & Technologies Used
+
+- **Python 3.10**
+- **OpenAI Gym** – Custom smart home simulation environment
+- **Stable-Baselines3** – PPO (Proximal Policy Optimization) RL agent
+- **Streamlit** – Interactive dashboard for visualization
+- **Pandas & NumPy** – Data manipulation
+- **Matplotlib/Plotly** (if used) – Graphing
+
 ## Features
 - RL-based appliance scheduling with PPO algorithm
 - Realistic power rating and energy cost calculation
