@@ -13,8 +13,8 @@ st.set_page_config(page_title="Smart Home RL Scheduler", layout="centered"
 st.markdown(
     """
     <style>
-        .title   {font-size:2.2em;font-weight:bold;color:#2c3e50;}
-        .subtitle{font-size:1.2em;color:#57606f;margin-bottom:6px;}
+        .title   {font-size:2.2em;font-weight:bold;color:#b08607;}
+        .subtitle{font-size:1.2em;color:#0b5929;margin-bottom:6px;}
         .metric  {background:#e8f5e9;padding:12px 8px;border-radius:10px;}
         .divider {height:1px;width:100%;background:#dfe4ea;margin:18px 0;}
     </style>
@@ -57,7 +57,7 @@ while True:
         break
 
 #CHARTS
-st.markdown("### 📊 Appliance Usage (0 = OFF, 1 = ON)")
+st.markdown("Appliance Usage (0 = OFF, 1 = ON)")
 
 st.markdown("Fan")
 df_fan = pd.DataFrame({
