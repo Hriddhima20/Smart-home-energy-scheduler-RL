@@ -3,10 +3,10 @@ import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
 from datetime import datetime
-from smart_home_env import SmartHomeEnv
-
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from smart_home_env import SmartHomeEnv
 
 if not os.path.exists("results"):
     os.makedirs("results")
