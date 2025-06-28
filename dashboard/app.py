@@ -3,13 +3,15 @@ import pandas as pd
 import numpy as np
 from stable_baselines3 import PPO
 from datetime import datetime
+from smart_home_env import SmartHomeEnv
+
 import sys, os
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from smart_home_env import SmartHomeEnv
+if not os.path.exists("results"):
+    os.makedirs("results")
 
 st.set_page_config(page_title="Smart Home RL Scheduler", layout="centered")
-
 st.markdown(
     """
     <style>
@@ -111,6 +113,10 @@ df_schedule.loc[len(df_schedule)] = ["Total", "", "", "",
 
 csv = df_schedule.to_csv(index=False)
 fname = f"schedule_{datetime.today().strftime('%Y-%m-%d')}.csv"
+results_path = os.path.join("results", fname)
+with open(results_path, "w") as f:
+    f.write(combined_csv)
+
 st.download_button("⬇️ Download Daily Schedule CSV", data=csv,
                    file_name=fname, mime="text/csv")
 
