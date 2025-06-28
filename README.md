@@ -1,3 +1,8 @@
+<p align="center">
+  <img src="dashboard.png" alt="Smart Home Energy Scheduler Preview" width="700"/>
+</p>
+
+
 # Smart Home Energy Scheduler using Reinforcement Learning (RL)
 
 This project uses Reinforcement Learning to minimize electricity costs by intelligently scheduling the operation of home appliances like fans, ACs, and refrigerators.
