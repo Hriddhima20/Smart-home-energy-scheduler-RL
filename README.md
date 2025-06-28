@@ -12,12 +12,19 @@ This project uses Reinforcement Learning to minimize electricity costs by intell
 
 ## Folder Structure
 ├── dashboard/         # Streamlit app UI
+
 ├── models/            # Trained RL models (e.g., ppo_smart_home.zip)
+
 ├── results/           # Generated CSV schedules for analysis
+
 ├── train_agent.py     # Script to train the PPO agent
+
 ├── evaluate_agent.py  # Evaluate and get schedule from model
+
 ├── smart_home_env.py  # Custom OpenAI Gym environment
+
 └── README.md          # Project overview (this file)
+
 
 ## How it works
 The PPO agent is trained in a Gym environment to learn when to turn appliances ON or OFF to minimize total electricity cost under dynamic pricing conditions. Fridge remains ON all day. Fan and AC usage is optimized.
