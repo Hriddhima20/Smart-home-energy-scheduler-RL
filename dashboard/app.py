@@ -115,7 +115,7 @@ csv = df_schedule.to_csv(index=False)
 fname = f"schedule_{datetime.today().strftime('%Y-%m-%d')}.csv"
 results_path = os.path.join("results", fname)
 with open(results_path, "w") as f:
-    f.write(combined_csv)
+    f.write(csv)
 
 st.download_button("⬇️ Download Daily Schedule CSV", data=csv,
                    file_name=fname, mime="text/csv")
